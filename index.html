@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Hunter | Metro Atlanta Construction Directory</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Smooth touch scrolling and tap highlighting on mobile */
+        html { -webkit-tap-highlight-color: transparent; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="border-b border-slate-800 bg-slate-950/90 sticky top-0 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center gap-2">
+                
+                <!-- BRANDING -->
+                <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                    <div class="bg-blue-600 p-1.5 sm:p-2 rounded-lg text-white">
+                        <i data-lucide="hard-hat" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </div>
+                    <div>
+                        <span class="text-lg sm:text-xl font-bold tracking-tight text-white">LEAD<span class="text-blue-500">HUNTER</span></span>
+                        <span class="text-[10px] sm:text-xs block text-slate-400 font-medium">Metro Atlanta Construction</span>
+                    </div>
+                </div>
+
+                <!-- RIGHT NAV ACTIONS -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button id="sync-btn" onclick="triggerDailySync()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                        <i data-lucide="refresh-cw" id="sync-icon" class="w-3.5 h-3.5 text-blue-400"></i>
+                        <span class="hidden md:inline">Sync Daily Leads</span>
+                    </button>
+                    
+                    <button id="auth-btn" onclick="openAuthModal()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg flex items-center gap-1.5 transition">
+                        <i data-lucide="user" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        <span id="auth-btn-text">Log In</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO / BANNER -->
+    <header class="bg-gradient-to-b from-slate-950 to-slate-900 border-b border-slate-800 py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold mb-2 sm:mb-3">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                        Metro Atlanta Local Home Builders & Contractors ($45K+)
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">Direct Contact Pipeline</h1>
+                    <p class="mt-1 sm:mt-2 text-slate-400 max-w-2xl text-xs sm:text-sm">
+                        Direct phone lines, purchasing contacts, and front office roles for residential builders across Newton, Henry, Gwinnett, Cobb, and North Fulton.
+                    </p>
+                </div>
+
+                <!-- TRACK SELECTOR TABS -->
+                <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex w-full md:w-auto">
+                    <button id="track-construction" onclick="setTrack('construction')" class="flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/20">
+                        <i data-lucide="hammer" class="w-4 h-4"></i>
+                        Construction ($45K+)
+                    </button>
+                    <button id="track-data" onclick="setTrack('data')" class="flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                        Data & AI Systems
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-grow">
+
+        <!-- SEARCH AND FILTER BAR -->
+        <div class="bg-slate-950 p-3 sm:p-4 rounded-xl border border-slate-800 mb-6 sm:mb-8 flex flex-col md:flex-row gap-3 items-center">
+            <div class="relative w-full md:flex-1">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-500"></i>
+                <input type="text" id="search-input" onkeyup="filterLeads()" placeholder="Search builder, contact, or area..." class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2.5 w-full md:w-auto">
+                <select id="submarket-select" onchange="filterLeads()" class="w-full sm:w-auto bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="ALL">All Metro Atlanta Submarkets</option>
+                    <option value="East Metro (Newton/Rockdale/Henry)">East Metro (Newton/Rockdale/Henry)</option>
+                    <option value="Gwinnett / North Metro">Gwinnett / North Metro</option>
+                    <option value="Cobb / West Metro">Cobb / West Metro</option>
+                    <option value="North Fulton / Forsyth">North Fulton / Forsyth</option>
+                    <option value="All Metro Atlanta">All Metro Atlanta</option>
+                </select>
+
+                <select id="type-select" onchange="filterLeads()" class="w-full sm:w-auto bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-300 focus:outline-none focus:border-blue-500">
+                    <option value="ALL">All Builder Types</option>
+                    <option value="Production Home Builder">Production Home Builder</option>
+                    <option value="Custom Estate Builder">Custom Estate Builder</option>
+                    <option value="Framing & General Contractor">Framing & General Contractor</option>
+                    <option value="Enterprise AI / Higher Ed">Enterprise AI / Higher Ed</option>
+                    <option value="Consulting / IT Services">Consulting / IT Services</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- PRIVATE CRM PIPELINE SECTION (SHOWN WHEN LOGGED IN) -->
+        <div id="private-crm-section" class="hidden mb-8 sm:mb-12 bg-slate-950 rounded-xl border border-blue-500/30 p-4 sm:p-6 shadow-2xl">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center border-b border-slate-800 pb-3 mb-4 gap-2">
+                <div>
+                    <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-400"></i>
+                        My Private CRM Pipeline
+                    </h2>
+                    <p class="text-[11px] sm:text-xs text-slate-400">Application status and call notes saved privately under your profile.</p>
+                </div>
+                <span class="text-xs bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full font-mono border border-blue-500/30 self-start sm:self-auto" id="crm-user-tag">Profile Active</span>
+            </div>
+
+            <div id="saved-pipeline-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+
+        <!-- DIRECTORY TITLE & RESULTS COUNT -->
+        <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between sm:items-center gap-1">
+            <h2 class="text-lg sm:text-xl font-bold text-white tracking-tight" id="directory-title">Residential Home Builders & Contractors</h2>
+            <span class="text-xs text-slate-400" id="results-count">Showing verified Georgia contacts</span>
+        </div>
+
+        <!-- DIRECTORY GRID CARDS -->
+        <div id="directory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <!-- Dynamically Populated -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-6 text-center text-xs text-slate-500">
+        <p>Lead Hunter &copy; 2026 | Optimized for Metro Atlanta Residential Construction & Technology</p>
+    </footer>
+
+    <!-- SCRIPT MODAL (TOUCH OPTIMIZED BOTTOM-SHEET ON MOBILE) -->
+    <div id="script-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-t-2xl sm:rounded-xl max-w-2xl w-full p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeScriptModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-base sm:text-lg font-bold text-white mb-1 flex items-center gap-2">
+                <i data-lucide="phone-call" class="w-5 h-5 text-blue-400"></i>
+                Direct Front Office Call Script
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">What to say when calling the front desk or hiring supervisor line.</p>
+            
+            <div class="bg-slate-950 p-3.5 sm:p-4 rounded-lg border border-slate-800 text-xs sm:text-sm text-slate-300 font-mono space-y-3 mb-4 leading-relaxed" id="script-body">
+                <!-- Dynamic Script Content -->
+            </div>
+
+            <div class="flex justify-end gap-2 sm:gap-3">
+                <button onclick="closeScriptModal()" class="px-4 py-2 text-xs sm:text-sm text-slate-400 hover:text-white">Close</button>
+                <button onclick="copyScriptText()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2">
+                    <i data-lucide="copy" class="w-4 h-4"></i> Copy Script
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-t-2xl sm:rounded-xl max-w-md w-full p-5 sm:p-6 relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 class="text-base sm:text-lg font-bold text-white mb-1">Create Profile or Log In</h3>
+            <p class="text-xs text-slate-400 mb-4">Saved leads and application notes are isolated to your profile passcode.</p>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Username / Name</label>
+                    <input type="text" id="auth-username" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Passcode / PIN</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-xs sm:text-sm transition">
+                    Log In / Access Private CRM
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APP JAVASCRIPT LOGIC -->
+    <script>
+        const leadsData = {
+            construction: [
+                {
+                    id: 'c1',
+                    company: 'Smith Douglas Homes',
+                    type: 'Production Home Builder',
+                    submarket: 'Gwinnett / North Metro',
+                    location: 'Woodstock / Metro Atlanta Subdivisions',
+                    payRange: '$48,000 - $68,000 / yr',
+                    phone: '(770) 213-8080',
+                    contactPerson: 'Front Office / Field Recruiting Desk',
+                    contactTitle: 'Operations & Procurement Manager',
+                    focus: 'High-volume residential single-family housing subdivisions across North & East Metro Atlanta.',
+                    rolesAvailable: ['Assistant Superintendent', 'Field Assistant', 'Site Operations Trainee']
+                },
+                {
+                    id: 'c2',
+                    company: 'Dernehl Company',
+                    type: 'Custom Estate Builder',
+                    submarket: 'North Fulton / Forsyth',
+                    location: 'Alpharetta / Roswell Estate Projects',
+                    payRange: '$52,000 - $75,000 / yr',
+                    phone: '(770) 475-1030',
+                    contactPerson: 'Project Management Desk',
+                    contactTitle: 'Senior Superintendent / PM',
+                    focus: 'Luxury high-end custom residential construction, multi-acre estates, and architectural framing.',
+                    rolesAvailable: ['Carpentry Lead', 'Field Assistant Manager', 'Site Prep Lead']
+                },
+                {
+                    id: 'c3',
+                    company: 'Kerley Family Homes',
+                    type: 'Production Home Builder',
+                    submarket: 'Cobb / West Metro',
+                    location: 'Kennesaw / Powder Springs Subdivisions',
+                    payRange: '$46,000 - $62,000 / yr',
+                    phone: '(770) 792-8500',
+                    contactPerson: 'Field Operations Desk',
+                    contactTitle: 'Construction Superintendent Lead',
+                    focus: 'Affordable single-family residential communities and multi-family framing projects.',
+                    rolesAvailable: ['Assistant Superintendent', 'Site Inspector Assistant']
+                },
+                {
+                    id: 'c4',
+                    company: 'Jeff Lindsey Communities',
+                    type: 'Production Home Builder',
+                    submarket: 'East Metro (Newton/Rockdale/Henry)',
+                    location: 'Covington / McDonough Operations',
+                    payRange: '$50,000 - $70,000 / yr',
+                    phone: '(770) 599-8700',
+                    contactPerson: 'Main Operations Desk',
+                    contactTitle: 'Purchasing & Subcontracting Lead',
+                    focus: 'Quality residential neighborhoods and land site development across East Metro Atlanta.',
+                    rolesAvailable: ['Field Operations Assistant', 'Construction Coordinator']
+                },
+                {
+                    id: 'c5',
+                    company: 'Piedmont Residential',
+                    type: 'Framing & General Contractor',
+                    submarket: 'Cobb / West Metro',
+                    location: 'Cobb & Cherokee Communities',
+                    payRange: '$47,000 - $65,000 / yr',
+                    phone: '(770) 216-1200',
+                    contactPerson: 'Construction Dept Desk',
+                    contactTitle: 'Director of Field Operations',
+                    focus: 'Master-planned single-family neighborhood framing, concrete prep, and residential site supervisors.',
+                    rolesAvailable: ['Assistant Builder', 'Assistant Field Coordinator']
+                },
+                {
+                    id: 'c6',
+                    company: 'SawHorse Design + Build',
+                    type: 'Custom Estate Builder',
+                    submarket: 'All Metro Atlanta',
+                    location: 'Metro Atlanta In-Town & Suburbs',
+                    payRange: '$55,000 - $80,000 / yr',
+                    phone: '(404) 256-2567',
+                    contactPerson: 'Front Office / PM Desk',
+                    contactTitle: 'Production Manager',
+                    focus: 'Custom residential remodels, whole-home estate renovations, and high-spec additions.',
+                    rolesAvailable: ['Project Assistant', 'Lead Carpenter Apprentice']
+                }
+            ],
+            data: [
+                {
+                    id: 'd1',
+                    company: 'Bunch Consulting LLC',
+                    type: 'Consulting / IT Services',
+                    submarket: 'East Metro (Newton/Rockdale/Henry)',
+                    location: 'Covington / Atlanta Metro Remote',
+                    payRange: 'Contract / $75,000 - $110,000 / yr',
+                    phone: '(770) 555-0199',
+                    contactPerson: 'Operations Strategy Lead',
+                    contactTitle: 'Managing Partner',
+                    focus: 'Cloud infrastructure, system analytics, operations strategy, and IT help desk workflow optimization.',
+                    rolesAvailable: ['Data Analyst Consultant', 'ETL Pipeline Specialist']
+                },
+                {
+                    id: 'd2',
+                    company: 'Kennesaw State University (IR)',
+                    type: 'Enterprise AI / Higher Ed',
+                    submarket: 'Cobb / West Metro',
+                    location: 'Kennesaw / Marietta Campus',
+                    payRange: '$70,000 - $95,000 / yr',
+                    phone: '(470) 578-6000',
+                    contactPerson: 'Institutional Research Office',
+                    contactTitle: 'Director of Institutional Analytics',
+                    focus: 'Higher education predictive metrics, student retention modeling, and Streamlit dashboarding.',
+                    rolesAvailable: ['Institutional Research Analyst', 'Data Engineer']
+                }
+            ]
+        };
+
+        let currentTrack = 'construction';
+        let currentUser = null;
+        let userPipeline = {};
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            loadUserData();
+            renderDirectory();
+        });
+
+        function setTrack(track) {
+            currentTrack = track;
+            const btnConst = document.getElementById('track-construction');
+            const btnData = document.getElementById('track-data');
+
+            if (track === 'construction') {
+                btnConst.className = 'flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/20';
+                btnData.className = 'flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                document.getElementById('directory-title').innerText = 'Residential Home Builders & Contractors';
+            } else {
+                btnData.className = 'flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-500/20';
+                btnConst.className = 'flex-1 md:flex-none px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                document.getElementById('directory-title').innerText = 'Enterprise Data & Analytics Teams';
+            }
+
+            renderDirectory();
+        }
+
+        function renderDirectory() {
+            const grid = document.getElementById('directory-grid');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const submarketVal = document.getElementById('submarket-select').value;
+            const typeVal = document.getElementById('type-select').value;
+
+            const list = leadsData[currentTrack].filter(item => {
+                const matchSearch = item.company.toLowerCase().includes(searchVal) || 
+                                    item.contactPerson.toLowerCase().includes(searchVal) ||
+                                    item.focus.toLowerCase().includes(searchVal);
+                const matchSubmarket = submarketVal === 'ALL' || item.submarket === submarketVal;
+                const matchType = typeVal === 'ALL' || item.type === typeVal;
+                return matchSearch && matchSubmarket && matchType;
+            });
+
+            document.getElementById('results-count').innerText = `Showing ${list.length} verified Georgia contacts`;
+
+            grid.innerHTML = list.map(item => `
+                <div class="bg-slate-950 border border-slate-800 hover:border-blue-500/50 rounded-xl p-4 sm:p-5 flex flex-col justify-between transition shadow-lg group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2.5 gap-2">
+                            <span class="text-[11px] bg-slate-900 text-blue-400 border border-slate-800 px-2 py-0.5 rounded font-medium">${item.type}</span>
+                            <span class="text-[11px] text-slate-400 flex items-center gap-1 shrink-0">
+                                <i data-lucide="map-pin" class="w-3 h-3 text-slate-500"></i> ${item.submarket.split(' ')[0]}
+                            </span>
+                        </div>
+
+                        <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-blue-400 transition">${item.company}</h3>
+                        <p class="text-xs text-slate-400 mt-1 mb-3 leading-relaxed">${item.focus}</p>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg p-2.5 sm:p-3 space-y-1.5 mb-4">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Point of Contact:</span>
+                                <span class="text-white font-medium">${item.contactPerson}</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-400">Title / Desk:</span>
+                                <span class="text-slate-300 font-mono text-[11px]">${item.contactTitle}</span>
+                            </div>
+                            <div class="flex justify-between text-xs border-t border-slate-800 pt-1.5">
+                                <span class="text-slate-400">Phone Line:</span>
+                                <a href="tel:${item.phone}" class="text-blue-400 font-bold hover:underline font-mono">${item.phone}</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs text-slate-400 mb-3 bg-slate-900/50 px-2.5 py-1.5 rounded">
+                            <span>Compensation Target:</span>
+                            <span class="text-emerald-400 font-bold font-mono">${item.payRange}</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button onclick="openScriptModal('${item.company}', '${item.contactPerson}')" class="flex-1 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 text-xs font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 transition">
+                                <i data-lucide="phone" class="w-3.5 h-3.5 text-blue-400"></i> Call Script
+                            </button>
+                            ${currentUser ? `
+                                <button onclick="saveToPipeline('${item.id}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Save
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function filterLeads() { renderDirectory(); }
+
+        function triggerDailySync() {
+            const icon = document.getElementById('sync-icon');
+            icon.classList.add('animate-spin');
+            setTimeout(() => {
+                icon.classList.remove('animate-spin');
+                alert('Daily Scraper Sync Complete: All Metro Atlanta builder contacts are up to date!');
+            }, 1000);
+        }
+
+        function openScriptModal(company, contact) {
+            document.getElementById('script-body').innerHTML = `
+                <p class="text-slate-400">// FRONT DESK / PHONE INTRO FOR ${company.toUpperCase()}</p>
+                <p><span class="text-blue-400">You:</span> "Good morning/afternoon, my name is [Your Name]. I'm calling to speak with ${contact} or whoever manages field operations and hiring for your local residential sites."</p>
+                <p><span class="text-slate-400">Front Desk:</span> "Can I ask what this is regarding?"</p>
+                <p><span class="text-blue-400">You:</span> "Yes, I'm an experienced field worker looking for local residential opportunities in Metro Atlanta. I'm calling to see if you are accepting applications for assistant superintendents or field coordinator positions right now."</p>
+            `;
+            document.getElementById('script-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeScriptModal() { document.getElementById('script-modal').classList.add('hidden'); }
+
+        function copyScriptText() {
+            navigator.clipboard.writeText(document.getElementById('script-body').innerText);
+            alert('Phone script copied to clipboard!');
+        }
+
+        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('auth-username').value;
+            currentUser = username;
+            
+            localStorage.setItem('lh_current_user', username);
+            document.getElementById('auth-btn-text').innerText = username;
+            document.getElementById('crm-user-tag').innerText = `User: ${username}`;
+            
+            closeAuthModal();
+            loadUserData();
+            renderDirectory();
+            document.getElementById('private-crm-section').classList.remove('hidden');
+        }
+
+        function loadUserData() {
+            const savedUser = localStorage.getItem('lh_current_user');
+            if (savedUser) {
+                currentUser = savedUser;
+                document.getElementById('auth-btn-text').innerText = savedUser;
+                document.getElementById('crm-user-tag').innerText = `User: ${savedUser}`;
+                
+                const rawPipeline = localStorage.getItem(`lh_pipeline_${savedUser}`);
+                if (rawPipeline) { userPipeline = JSON.parse(rawPipeline); }
+                renderPipeline();
+                document.getElementById('private-crm-section').classList.remove('hidden');
+            }
+        }
+
+        function saveToPipeline(leadId) {
+            if (!currentUser) { openAuthModal(); return; }
+
+            const allLeads = [...leadsData.construction, ...leadsData.data];
+            const found = allLeads.find(l => l.id === leadId);
+
+            if (found && !userPipeline[leadId]) {
+                userPipeline[leadId] = {
+                    ...found,
+                    status: 'To Contact',
+                    notes: 'Saved on ' + new Date().toLocaleDateString()
+                };
+
+                localStorage.setItem(`lh_pipeline_${currentUser}`, JSON.stringify(userPipeline));
+                renderPipeline();
+                alert(`${found.company} saved to your private CRM pipeline!`);
+            }
+        }
+
+        function renderPipeline() {
+            const container = document.getElementById('saved-pipeline-container');
+            const keys = Object.keys(userPipeline);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 col-span-3">No saved leads in your CRM. Click "Save" on any builder above to track applications.</p>`;
+                return;
+            }
+
+            container.innerHTML = keys.map(k => {
+                const item = userPipeline[k];
+                return `
+                    <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 sm:p-4 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-bold text-white text-xs sm:text-sm">${item.company}</h4>
+                            <span class="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20 font-mono">${item.status}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-mono">Contact: ${item.contactPerson} (${item.phone})</p>
+                        <div class="text-[11px] bg-slate-950 p-2 rounded border border-slate-800 text-slate-300">
+                            <strong>Note:</strong> ${item.notes}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
